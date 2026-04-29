@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weighted Grade Calculator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f6fb;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    input, button, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 16px;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .danger {
+      background: #dc2626;
+    }
+
+    .danger:hover {
+      background: #b91c1c;
+    }
+
+    .secondary {
+      background: #6b7280;
+    }
+
+    .secondary:hover {
+      background: #4b5563;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .stat {
+      background: #eef2ff;
+      padding: 18px;
+      border-radius: 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 32px;
+      margin-top: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .result-good {
+      color: #16a34a;
+      font-weight: bold;
+    }
+
+    .result-bad {
+      color: #dc2626;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="loginCard">
+      <h1>Math Grade Tracker</h1>
+      <p class="small">Simple GitHub Pages version. This login only saves your data on this browser.</p>
+
+      <label>Name</label>
+      <input id="nameInput" placeholder="Example: Alex" />
+
+      <label>Password</label>
+      <input id="passwordInput" type="password" placeholder="Use a random password, not a real one" />
+
+      <button onclick="login()">Login / Create Account</button>
+    </div>
+
+    <div id="app" class="hidden">
+      <div class="card">
+        <h1 id="welcomeTitle">Welcome</h1>
+        <p class="small">Your grades are saved locally in your browser.</p>
+        <button class="secondary" onclick="logout()">Logout</button>
+      </div>
+
+      <div class="grid">
+        <div class="stat">
+          Current Average
+          <strong id="averageDisplay">0%</strong>
+        </div>
+        <div class="stat">
+          Total Weight
+          <strong id="weightDisplay">0</strong>
+        </div>
+        <div class="stat">
+          Grade Count
+          <strong id="countDisplay">0</strong>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Add Grade</h2>
+        <label>Score</label>
+        <input id="scoreInput" type="number" min="0" max="100" placeholder="Example: 86" />
+
+        <label>Weight</label>
+        <input id="weightInput" type="number" min="0.01" step="0.01" placeholder="Example: 8" />
+
+        <label>Name / Description</label>
+        <input id="gradeNameInput" placeholder="Example: Big Test" />
+
+        <button onclick="addGrade()">Add Grade</button>
+      </div>
+
+      <div class="card">
+        <h2>Your Grades</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Score</th>
+              <th>Weight</th>
+              <th>Impact</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="gradesTable"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>What Do I Need Next?</h2>
+        <p class="small">Enter your target average and the weight of your next test.</p>
+
+        <label>Target Average</label>
+        <input id="targetInput" type="number" min="0" max="100" placeholder="Example: 90" />
+
+        <label>Next Test Weight</label>
+        <input id="nextWeightInput" type="number" min="0.01" step="0.01" placeholder="Example: 10" />
+
+        <button onclick="calculateNeededScore()">Calculate Needed Score</button>
+        <h3 id="neededResult"></h3>
+      </div>
+
+      <div class="card">
+        <h2>Predict Future Grade</h2>
+        <p class="small">Try a possible future test score and see your new average.</p>
+
+        <label>Possible Score</label>
+        <input id="predictScoreInput" type="number" min="0" max="100" placeholder="Example: 84" />
+
+        <label>Future Test Weight</label>
+        <input id="predictWeightInput" type="number" min="0.01" step="0.01" placeholder="Example: 10" />
+
+        <button onclick="predictAverage()">Predict</button>
+        <h3 id="predictResult"></h3>
+      </div>
+
+      <div class="card">
+        <h2>Starter Example</h2>
+        <p class="small">Loads your example: 86 W8, 93 W5, 78 W5, 81 W5.</p>
+        <button onclick="loadExample()">Load Example Grades</button>
+        <button class="danger" onclick="clearGrades()">Clear All Grades</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let grades = [];
+
+    function getUserKey(name) {
+      return "gradeApp_" + name.toLowerCase().trim();
+    }
+
+    function login() {
+      const name = document.getElementById("nameInput").value.trim();
+      const password = document.getElementById("passwordInput").value;
+
+      if (!name || !password) {
+        alert("Enter both a name and password.");
+        return;
+      }
+
+      const userKey = getUserKey(name);
+      const saved = JSON.parse(localStorage.getItem(userKey)) || null;
+
+      if (saved && saved.password !== password) {
+        alert("Wrong password for this name.");
+        return;
+      }
+
+      if (!saved) {
+        localStorage.setItem(userKey, JSON.stringify({ password, grades: [] }));
+      }
+
+      currentUser = name;
+      loadUserData();
+      document.getElementById("loginCard").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      document.getElementById("welcomeTitle").innerText = "Welcome, " + currentUser;
+    }
+
+    function logout() {
+      currentUser = null;
+      grades = [];
+      document.getElementById("loginCard").classList.remove("hidden");
+      document.getElementById("app").classList.add("hidden");
+      document.getElementById("passwordInput").value = "";
+    }
+
+    function loadUserData() {
+      const data = JSON.parse(localStorage.getItem(getUserKey(currentUser)));
+      grades = data.grades || [];
+      updateDisplay();
+    }
+
+    function saveUserData() {
+      const userKey = getUserKey(currentUser);
+      const data = JSON.parse(localStorage.getItem(userKey));
+      data.grades = grades;
+      localStorage.setItem(userKey, JSON.stringify(data));
+    }
+
+    function weightedAverage() {
+      if (grades.length === 0) return 0;
+
+      let weightedSum = 0;
+      let totalWeight = 0;
+
+      grades.forEach(g => {
+        weightedSum += g.score * g.weight;
+        totalWeight += g.weight;
+      });
+
+      if (totalWeight === 0) return 0;
+      return weightedSum / totalWeight;
+    }
+
+    function totalWeight() {
+      return grades.reduce((sum, g) => sum + g.weight, 0);
+    }
+
+    function addGrade() {
+      const score = Number(document.getElementById("scoreInput").value);
+      const weight = Number(document.getElementById("weightInput").value);
+      const name = document.getElementById("gradeNameInput").value.trim() || "Grade";
+
+      if (isNaN(score) || score < 0 || score > 100) {
+        alert("Score must be between 0 and 100.");
+        return;
+      }
+
+      if (isNaN(weight) || weight <= 0) {
+        alert("Weight must be greater than 0.");
+        return;
+      }
+
+      grades.push({ name, score, weight });
+      saveUserData();
+      updateDisplay();
+
+      document.getElementById("scoreInput").value = "";
+      document.getElementById("weightInput").value = "";
+      document.getElementById("gradeNameInput").value = "";
+    }
+
+    function deleteGrade(index) {
+      grades.splice(index, 1);
+      saveUserData();
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      const avg = weightedAverage();
+      const weight = totalWeight();
+
+      document.getElementById("averageDisplay").innerText = avg.toFixed(2) + "%";
+      document.getElementById("weightDisplay").innerText = weight.toFixed(2);
+      document.getElementById("countDisplay").innerText = grades.length;
+
+      const table = document.getElementById("gradesTable");
+      table.innerHTML = "";
+
+      grades.forEach((g, index) => {
+        const impact = weight === 0 ? 0 : (g.weight / weight) * 100;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${escapeHtml(g.name)}</td>
+          <td>${g.score}%</td>
+          <td>${g.weight}</td>
+          <td>${impact.toFixed(1)}%</td>
+          <td><button class="danger" onclick="deleteGrade(${index})">Delete</button></td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function calculateNeededScore() {
+      const target = Number(document.getElementById("targetInput").value);
+      const nextWeight = Number(document.getElementById("nextWeightInput").value);
+      const result = document.getElementById("neededResult");
+
+      if (isNaN(target) || target < 0 || target > 100) {
+        result.innerText = "Target must be between 0 and 100.";
+        result.className = "result-bad";
+        return;
+      }
+
+      if (isNaN(nextWeight) || nextWeight <= 0) {
+        result.innerText = "Next test weight must be greater than 0.";
+        result.className = "result-bad";
+        return;
+      }
+
+      const currentWeightedSum = grades.reduce((sum, g) => sum + g.score * g.weight, 0);
+      const currentWeight = totalWeight();
+
+      const needed = ((target * (currentWeight + nextWeight)) - currentWeightedSum) / nextWeight;
+
+      if (needed > 100) {
+        result.innerText = `You would need ${needed.toFixed(2)}%, which is impossible if max score is 100%.`;
+        result.className = "result-bad";
+      } else if (needed <= 0) {
+        result.innerText = `You already have enough. Even 0% would keep at least ${target}%.`;
+        result.className = "result-good";
+      } else {
+        result.innerText = `You need at least ${needed.toFixed(2)}% on the next test.`;
+        result.className = "result-good";
+      }
+    }
+
+    function predictAverage() {
+      const score = Number(document.getElementById("predictScoreInput").value);
+      const weight = Number(document.getElementById("predictWeightInput").value);
+      const result = document.getElementById("predictResult");
+
+      if (isNaN(score) || score < 0 || score > 100) {
+        result.innerText = "Score must be between 0 and 100.";
+        result.className = "result-bad";
+        return;
+      }
+
+      if (isNaN(weight) || weight <= 0) {
+        result.innerText = "Weight must be greater than 0.";
+        result.className = "result-bad";
+        return;
+      }
+
+      const currentWeightedSum = grades.reduce((sum, g) => sum + g.score * g.weight, 0);
+      const currentWeight = totalWeight();
+      const newAverage = (currentWeightedSum + score * weight) / (currentWeight + weight);
+
+      result.innerText = `Your new average would be ${newAverage.toFixed(2)}%.`;
+      result.className = "result-good";
+    }
+
+    function loadExample() {
+      grades = [
+        { name: "Test", score: 86, weight: 8 },
+        { name: "Test", score: 93, weight: 5 },
+        { name: "Test", score: 78, weight: 5 },
+        { name: "Test", score: 81, weight: 5 }
+      ];
+      saveUserData();
+      updateDisplay();
+    }
+
+    function clearGrades() {
+      if (!confirm("Delete all grades?")) return;
+      grades = [];
+      saveUserData();
+      updateDisplay();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.innerText = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
