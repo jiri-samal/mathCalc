@@ -314,7 +314,7 @@
         return;
       }
 
-      if (isNaN(weight) || weight <= 0) {
+      if (isNaN(nextWeight) || nextWeight < 1 || nextWeight > 10) {
         alert("Váha musí být větší než 0.");
         return;
       }
