@@ -189,8 +189,8 @@
       </div>
 
       <div class="card">
-        <h2>Kolik musíš mít příště?</h2>
-        <p class="small">Zadej cílový průměr a váhu dalšího testu.</p>
+        <h2>Jakou nejhorší známku můžeš dostat?</h2>
+        <p class="small">Zadej průměr, pod který nechceš spadnout, a váhu další známky.</p>
 
         <label>Cílový průměr</label>
         <input id="targetInput" type="number" min="0" max="100" placeholder="Například: 90" />
@@ -347,36 +347,36 @@
       const target = Number(document.getElementById("targetInput").value);
       const nextWeight = Number(document.getElementById("nextWeightInput").value);
       const result = document.getElementById("neededResult");
-
+    
       if (isNaN(target) || target < 0 || target > 100) {
         result.innerText = "Cílový průměr musí být mezi 0 a 100.";
         result.className = "result-bad";
         return;
       }
-
+    
       if (isNaN(nextWeight) || nextWeight < 1 || nextWeight > 10) {
-        result.innerText = "Váha příštího testu musí být mezi 1 a 10.";
+        result.innerText = "Váha musí být mezi 1 a 10.";
         result.className = "result-bad";
         return;
       }
-
+    
       const currentWeightedSum = grades.reduce((sum, g) => sum + g.score * g.weight, 0);
       const currentWeight = totalWeight();
-
+    
       const needed =
         ((target * (currentWeight + nextWeight)) - currentWeightedSum) / nextWeight;
-
+    
       if (needed > 100) {
         result.innerText =
-          `Potřeboval bys ${needed.toFixed(2)} %, což nejde, protože maximum je 100 %.`;
+          `Ani 100 % nestačí. Potřeboval bys ${needed.toFixed(2)} %.`;
         result.className = "result-bad";
       } else if (needed <= 0) {
         result.innerText =
-          `Už máš dostatečný průměr. I 0 % by ti udrželo alespoň ${target} %.`;
+          `Můžeš dostat i 0 % a pořád budeš mít alespoň ${target} %.`;
         result.className = "result-good";
       } else {
         result.innerText =
-          `Potřebuješ alespoň ${needed.toFixed(2)} % v příštím testu.`;
+          `Nejhorší známka, kterou můžeš dostat, je ${needed.toFixed(2)} %.`;
         result.className = "result-good";
       }
     }
