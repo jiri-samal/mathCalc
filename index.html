@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kalkulačka váženého průměru</title>
+  <title>Matematika Bakaláře</title>
   <style>
     * {
       box-sizing: border-box;
@@ -127,20 +127,19 @@
   <div class="container">
     <div class="card" id="loginCard">
       <h1>Kalkulačka známek z matematiky</h1>
-      <p class="small">Jednoduchá verze pro GitHub Pages. Přihlášení ukládá data pouze v tomto prohlížeči.</p>
 
       <label>Jméno</label>
-      <input id="nameInput" placeholder="Například: Jirka" />
+      <input id="nameInput" placeholder="Například: Matěj Zelenka smrdí" />
 
       <label>Heslo</label>
-      <input id="passwordInput" type="password" placeholder="Použij náhodné heslo, ne svoje reálné" />
+      <input id="passwordInput" type="password" placeholder="NEPOUŽÍVEJ SVOJE VLASTNÍ HESLO, LOGIN NENÍ ZABEZPEČENEJ" />
 
       <button onclick="login()">Přihlásit se / Vytvořit účet</button>
     </div>
 
     <div id="app" class="hidden">
       <div class="card">
-        <h1 id="welcomeTitle">Vítej</h1>
+        <h1 id="welcomeTitle">Tenhle člověk je frajer/ka --3</h1>
         <p class="small">Tvoje známky jsou uložené pouze lokálně v tomto prohlížeči.</p>
         <button class="secondary" onclick="logout()">Odhlásit se</button>
       </div>
@@ -167,7 +166,7 @@
         <input id="scoreInput" type="number" min="0" max="100" placeholder="Například: 86" />
 
         <label>Váha</label>
-        <input id="weightInput" type="number" min="0.01" step="0.01" placeholder="Například: 8" />
+        <input id="weightInput" type="number" min="1" max="10" step="1" placeholder="Například: 8" />
 
         <label>Název / Popis</label>
         <input id="gradeNameInput" placeholder="Například: Velký test" />
@@ -192,14 +191,14 @@
       </div>
 
       <div class="card">
-        <h2>Kolik potřebuji příště?</h2>
+        <h2>Kolik musíš mít příště?</h2>
         <p class="small">Zadej cílový průměr a váhu dalšího testu.</p>
 
         <label>Cílový průměr</label>
         <input id="targetInput" type="number" min="0" max="100" placeholder="Například: 90" />
 
         <label>Váha příštího testu</label>
-        <input id="nextWeightInput" type="number" min="0.01" step="0.01" placeholder="Například: 10" />
+        <input id="nextWeightInput" type="number" min="1" max="10" step="1" placeholder="Například: 10" />
 
         <button onclick="calculateNeededScore()">Spočítat potřebné skóre</button>
         <h3 id="neededResult"></h3>
@@ -207,13 +206,13 @@
 
       <div class="card">
         <h2>Předpověď budoucího průměru</h2>
-        <p class="small">Zkus zadat možný výsledek příštího testu a zjisti nový průměr.</p>
+        <p class="small">Dej sem kolik si myslíš že budeš mít.</p>
 
         <label>Možné skóre</label>
         <input id="predictScoreInput" type="number" min="0" max="100" placeholder="Například: 84" />
 
         <label>Váha budoucího testu</label>
-        <input id="predictWeightInput" type="number" min="0.01" step="0.01" placeholder="Například: 10" />
+        <input id="predictWeightInput" type="number" min="1" max="10" step="1" placeholder="Například: 10" />
 
         <button onclick="predictAverage()">Předpovědět průměr</button>
         <h3 id="predictResult"></h3>
@@ -373,7 +372,7 @@
         return;
       }
 
-      if (isNaN(nextWeight) || nextWeight <= 0) {
+      if (isNaN(weight) || weight < 1 || weight > 10) {
         result.innerText = "Váha příštího testu musí být větší než 0.";
         result.className = "result-bad";
         return;
