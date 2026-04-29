@@ -125,23 +125,21 @@
 </head>
 <body>
   <div class="container">
-    <div class="card" id="loginCard">
+    <div class="card" id="nameCard">
       <h1>Kalkulačka známek z matematiky</h1>
+      <p class="small">Zadej jméno. Známky se uloží pouze v tomto prohlížeči.</p>
 
       <label>Jméno</label>
-      <input id="nameInput" placeholder="Například: Matěj Zelenka smrdí" />
+      <input id="nameInput" placeholder="Například: Jirka" />
 
-      <label>Heslo</label>
-      <input id="passwordInput" type="password" placeholder="NEPOUŽÍVEJ SVOJE VLASTNÍ HESLO, LOGIN NENÍ ZABEZPEČENEJ" />
-
-      <button onclick="login()">Přihlásit se / Vytvořit účet</button>
+      <button onclick="startApp()">Pokračovat</button>
     </div>
 
     <div id="app" class="hidden">
       <div class="card">
-        <h1 id="welcomeTitle">Tenhle člověk je frajer/ka --3</h1>
+        <h1 id="welcomeTitle">Jméno:</h1>
         <p class="small">Tvoje známky jsou uložené pouze lokálně v tomto prohlížeči.</p>
-        <button class="secondary" onclick="logout()">Odhlásit se</button>
+        <button class="secondary" onclick="changeName()">Změnit jméno</button>
       </div>
 
       <div class="grid">
@@ -206,7 +204,7 @@
 
       <div class="card">
         <h2>Předpověď budoucího průměru</h2>
-        <p class="small">Dej sem kolik si myslíš že budeš mít.</p>
+        <p class="small">Zadej, kolik si myslíš, že budeš mít.</p>
 
         <label>Možné skóre</label>
         <input id="predictScoreInput" type="number" min="0" max="100" placeholder="Například: 84" />
@@ -233,71 +231,55 @@
       return "gradeApp_" + name.toLowerCase().trim();
     }
 
-    function login() {
+    function startApp() {
       const name = document.getElementById("nameInput").value.trim();
-      const password = document.getElementById("passwordInput").value;
 
-      if (!name || !password) {
-        alert("Zadej jméno i heslo.");
+      if (!name) {
+        alert("Zadej jméno.");
         return;
-      }
-
-      const userKey = getUserKey(name);
-      const saved = JSON.parse(localStorage.getItem(userKey)) || null;
-
-      if (saved && saved.password !== password) {
-        alert("Špatné heslo pro toto jméno.");
-        return;
-      }
-
-      if (!saved) {
-        localStorage.setItem(userKey, JSON.stringify({ password, grades: [] }));
       }
 
       currentUser = name;
+      localStorage.setItem("lastGradeUser", currentUser);
+
       loadUserData();
 
-      document.getElementById("loginCard").classList.add("hidden");
+      document.getElementById("nameCard").classList.add("hidden");
       document.getElementById("app").classList.remove("hidden");
       document.getElementById("welcomeTitle").innerText = "Jméno: " + currentUser;
     }
 
-    function logout() {
+    function changeName() {
       currentUser = null;
       grades = [];
 
-      document.getElementById("loginCard").classList.remove("hidden");
+      document.getElementById("nameCard").classList.remove("hidden");
       document.getElementById("app").classList.add("hidden");
-      document.getElementById("passwordInput").value = "";
     }
 
     function loadUserData() {
-      const data = JSON.parse(localStorage.getItem(getUserKey(currentUser)));
-      grades = data.grades || [];
+      const saved = JSON.parse(localStorage.getItem(getUserKey(currentUser))) || { grades: [] };
+      grades = saved.grades || [];
       updateDisplay();
     }
 
     function saveUserData() {
-      const userKey = getUserKey(currentUser);
-      const data = JSON.parse(localStorage.getItem(userKey));
-
-      data.grades = grades;
-      localStorage.setItem(userKey, JSON.stringify(data));
+      localStorage.setItem(getUserKey(currentUser), JSON.stringify({ grades }));
     }
 
     function weightedAverage() {
       if (grades.length === 0) return 0;
 
       let weightedSum = 0;
-      let totalWeight = 0;
+      let totalWeightValue = 0;
 
       grades.forEach(g => {
         weightedSum += g.score * g.weight;
-        totalWeight += g.weight;
+        totalWeightValue += g.weight;
       });
 
-      if (totalWeight === 0) return 0;
-      return weightedSum / totalWeight;
+      if (totalWeightValue === 0) return 0;
+      return weightedSum / totalWeightValue;
     }
 
     function totalWeight() {
@@ -314,8 +296,8 @@
         return;
       }
 
-      if (isNaN(nextWeight) || nextWeight < 1 || nextWeight > 10) {
-        alert("Váha musí být větší než 0.");
+      if (isNaN(weight) || weight < 1 || weight > 10) {
+        alert("Váha musí být mezi 1 a 10.");
         return;
       }
 
@@ -372,8 +354,8 @@
         return;
       }
 
-      if (isNaN(weight) || weight < 1 || weight > 10) {
-        result.innerText = "Váha příštího testu musí být větší než 0.";
+      if (isNaN(nextWeight) || nextWeight < 1 || nextWeight > 10) {
+        result.innerText = "Váha příštího testu musí být mezi 1 a 10.";
         result.className = "result-bad";
         return;
       }
@@ -410,8 +392,8 @@
         return;
       }
 
-      if (isNaN(weight) || weight <= 0) {
-        result.innerText = "Váha musí být větší než 0.";
+      if (isNaN(weight) || weight < 1 || weight > 10) {
+        result.innerText = "Váha musí být mezi 1 a 10.";
         result.className = "result-bad";
         return;
       }
@@ -439,6 +421,13 @@
       div.innerText = text;
       return div.innerHTML;
     }
+
+    window.onload = function () {
+      const lastUser = localStorage.getItem("lastGradeUser");
+      if (lastUser) {
+        document.getElementById("nameInput").value = lastUser;
+      }
+    };
   </script>
 </body>
 </html>
